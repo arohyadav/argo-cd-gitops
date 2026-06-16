@@ -10,23 +10,6 @@
 A GitOps repository for managing Kubernetes deployments across **QA**, **Staging**, and **Production** using **Argo CD**, **Helm**, and **Argo Rollouts**.
 
 ---
-                    GitHub
-                       │
-             Git Push / Pull Request
-                       │
-                       ▼
-                 Argo CD Watches Repo
-                       │
-         ┌─────────────┴─────────────┐
-         │             │             │
-         ▼             ▼             ▼
-       QA Cluster   Staging      Production
-         │             │             │
-         └────── Argo Rollouts ──────┘
-                    │
-               Helm Charts
-                    │
-             Kubernetes Resources
 
 # 📖 Overview
 
@@ -81,9 +64,7 @@ argo-cd-gitops/
 │   ├── staging/
 │   ├── prod/
 │   └── helm-values/
-│       ├── qa-values.yaml
-│       ├── staging-values.yaml
-│       └── prod-values.yaml
+│       ├── prom-values.yaml
 │
 └── README.md
 ```
