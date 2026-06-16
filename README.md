@@ -1,38 +1,66 @@
 # 🚀 Argo CD GitOps Repository
 
 <p align="center">
-  <img src="https://img.shields.io/badge/GitOps-ArgoCD-red?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Helm-Charts-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Argo-Rollouts-orange?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Kubernetes-Multi--Environment-326CE5?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/GitOps-ArgoCD-red?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Helm-Charts-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Argo-Rollouts-orange?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Kubernetes-Multi--Environment-326CE5?style=for-the-badge">
 </p>
 
-## 📖 Overview
+A GitOps repository for managing Kubernetes deployments across **QA**, **Staging**, and **Production** using **Argo CD**, **Helm**, and **Argo Rollouts**.
 
-This repository follows the **GitOps** approach to manage Kubernetes deployments across multiple environments using **Argo CD**, **Helm**, and **Argo Rollouts**.
+---
+                    GitHub
+                       │
+             Git Push / Pull Request
+                       │
+                       ▼
+                 Argo CD Watches Repo
+                       │
+         ┌─────────────┴─────────────┐
+         │             │             │
+         ▼             ▼             ▼
+       QA Cluster   Staging      Production
+         │             │             │
+         └────── Argo Rollouts ──────┘
+                    │
+               Helm Charts
+                    │
+             Kubernetes Resources
 
-Every change pushed to Git is automatically synchronized with the Kubernetes clusters, ensuring deployments remain declarative, consistent, and version-controlled.
+# 📖 Overview
+
+This repository follows the GitOps model where **Git is the single source of truth** for Kubernetes deployments.
+
+It manages:
+
+* Kubernetes manifests
+* Helm chart deployments
+* Environment-specific configurations
+* Progressive delivery using Argo Rollouts
+
+Whenever changes are pushed to this repository, **Argo CD** automatically synchronizes the desired state with the Kubernetes cluster.
 
 ---
 
-## ✨ Tech Stack
+# 🛠 Tech Stack
 
-| Tool             | Purpose                                    |
-| ---------------- | ------------------------------------------ |
-| 🚀 Argo CD       | Continuous Delivery & GitOps               |
-| 📦 Helm          | Kubernetes Package Management              |
-| 🔄 Argo Rollouts | Progressive Delivery (Canary / Blue-Green) |
-| ☸️ Kubernetes    | Container Orchestration                    |
+| Component        | Purpose                         |
+| ---------------- | ------------------------------- |
+| ☸️ Kubernetes    | Container orchestration         |
+| 🚀 Argo CD       | GitOps Continuous Delivery      |
+| 📦 Helm          | Package management              |
+| 🔄 Argo Rollouts | Canary & Blue-Green deployments |
 
 ---
 
-## 🌍 Environments
+# 🌍 Deployment Environments
 
-| Environment   | Purpose                          |
-| ------------- | -------------------------------- |
-| 🧪 QA         | Initial testing and validation   |
-| 🚦 Staging    | Pre-production verification      |
-| 🚀 Production | Live customer-facing environment |
+| Environment   | Description                    |
+| ------------- | ------------------------------ |
+| 🧪 QA         | Initial testing and validation |
+| 🚦 Staging    | Pre-production verification    |
+| 🚀 Production | Live production workloads      |
 
 ---
 
@@ -49,14 +77,13 @@ argo-cd-gitops/
 │   └── shared-secrets.yaml
 │
 ├── kubernetes/
-│   ├── helm-values/
-│   │   ├── qa-values.yaml
-│   │   ├── staging-values.yaml
-│   │   └── prod-values.yaml
-│   │
 │   ├── qa/
 │   ├── staging/
-│   └── prod/
+│   ├── prod/
+│   └── helm-values/
+│       ├── qa-values.yaml
+│       ├── staging-values.yaml
+│       └── prod-values.yaml
 │
 └── README.md
 ```
@@ -69,141 +96,20 @@ argo-cd-gitops/
 Developer
      │
      ▼
- Push to GitHub
+Push Changes to GitHub
      │
      ▼
- Argo CD detects changes
+Argo CD Detects Changes
      │
      ▼
- Sync Kubernetes manifests
+Synchronizes Kubernetes Resources
      │
      ▼
- Deploy Helm Charts
+Deploys Helm Charts
      │
      ▼
- Argo Rollouts
- (Canary / Blue-Green)
-     │
-     ▼
- Kubernetes Cluster
-```
-
----
-
-# 🚀 Features
-
-* ✅ GitOps-based Kubernetes deployments
-* ✅ Multi-environment support (QA, Staging, Production)
-* ✅ Environment-specific Helm values
-* ✅ Automated synchronization using Argo CD
-* ✅ Progressive delivery with Argo Rollouts
-* ✅ Reusable Helm charts
-* ✅ Declarative infrastructure stored in Git
-* ✅ Easy rollback using Git history
-
----
-
-# 📁 Environment Configuration
-
-Each environment maintains its own Kubernetes manifests and Helm values.
-
-```text
-kubernetes/
-├── qa/
-├── staging/
-├── prod/
-└── helm-values/
-```
-
-This separation allows every environment to have independent configuration while sharing common deployment logic.
-
----
-
-# 🚀 Getting Started
-
-### 1. Install Argo CD
-
-Install Argo CD into your Kubernetes cluster.
-
-### 2. Apply ApplicationSets
-
-```bash
-kubectl apply -f applicationset/
-```
-
-### 3. Verify Applications
-
-```bash
-argocd app list
-```
-
-### 4. Sync Applications
-
-```bash
-argocd app sync <application-name>
-```
-
----
-
-# 🔄 Deployment Strategy
-
-This repository supports **Argo Rollouts** for safer deployments.
-
-Supported strategies include:
-
-* Canary Deployments
-* Blue-Green Deployments
-* Automated Promotion
-* Manual Promotion
-* Rollback Support
-
----
-
-# 📦 Helm
-
-Environment-specific Helm values are stored under:
-
-```text
-kubernetes/helm-values/
-```
-
-Example:
-
-```text
-helm-values/
-├── qa-values.yaml
-├── staging-values.yaml
-└── prod-values.yaml
-```
-
-This enables deploying the same chart with different configurations for each environment.
-
----
-
-# 📌 Best Practices
-
-* Keep environment-specific configuration isolated.
-* Review pull requests before merging.
-* Use Argo CD auto-sync where appropriate.
-* Store secrets securely (External Secrets, Vault, Sealed Secrets, etc.).
-* Keep Helm values minimal and reusable.
-* Prefer declarative changes over manual cluster modifications.
-
----
-
-# 📈 GitOps Flow
-
-```text
-Git Commit
-     │
-     ▼
-GitHub Repository
-     │
-     ▼
-Argo CD Watches Repository
-     │
-     ▼
-Synchronizes Desired State
+Argo Rollouts
+(Canary / Blue-Green)
      │
      ▼
 Kubernetes Cluster
@@ -211,23 +117,54 @@ Kubernetes Cluster
 
 ---
 
-# 📚 References
+# ✨ Features
 
-* Argo CD
-* Argo Rollouts
-* Helm
-* Kubernetes
-
----
-
-## 👨‍💻 Author
-
-**Aroh Yadav**
-
-DevOps • Kubernetes • GitOps • Cloud Infrastructure
+* GitOps-driven deployments
+* Multi-environment support
+* Environment-specific Helm values
+* Declarative Kubernetes manifests
+* Progressive delivery using Argo Rollouts
+* Automated synchronization with Argo CD
+* Easy rollback using Git history
 
 ---
 
-## 📄 License
+# 🚀 Getting Started
+
+## 1. Install Argo CD
+
+Install Argo CD in your Kubernetes cluster.
+
+## 2. Register Applications
+
+```bash
+kubectl apply -f applicationset/
+```
+
+## 3. Verify
+
+```bash
+argocd app list
+```
+
+## 4. Sync Applications
+
+```bash
+argocd app sync <application-name>
+```
+
+---
+
+# 📌 Best Practices
+
+* Store environment-specific configuration separately.
+* Keep Helm charts reusable.
+* Review Pull Requests before merging.
+* Avoid manual cluster changes.
+* Use Git commits as the deployment history.
+
+---
+
+# 📄 License
 
 This project is licensed under the MIT License.
