@@ -1,0 +1,158 @@
+# =========================
+# GRAFANA
+# =========================
+grafana:
+  enabled: true
+
+  persistence:
+    enabled: true
+    type: pvc
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    storageClassName: standard
+
+  # Minikube/hostpath often has issues with chown in init containers
+  initChownData:
+    enabled: false
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  # Optional: set admin credentials via values (don’t do this in real prod without secrets)
+  adminUser: admin
+  adminPassword: admin123
+
+  service:
+    type: NodePort
+    nodePort: 32000
+
+# =========================
+# PROMETHEUS (TSDB)
+# =========================
+prometheus:
+  enabled: true
+
+  prometheusSpec:
+    # TSDB retention & performance tuning for a small prod-like setup
+    retention: 15d                 # keep 15 days of metrics
+    retentionSize: "15GB"          # or limit by size; adjust based on disk
+    walCompression: true
+
+    # Enable TSDB isolation and WAL-specific tuning (good defaults)
+    enableAdminAPI: false          # keep off in prod unless needed
+    queryLogFile: ""               # you can set a path if needed
+
+    # Storage (PVC) for TSDB
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+
+    # Resource requests/limits (adjust up for real prod)
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        cpu: 1
+        memory: 4Gi
+
+    # Scrape & evaluation intervals (classic defaults)
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+
+    # Rule file capacity (to avoid OOMs when loading many rules)
+    ruleSelectorNilUsesHelmValues: true
+
+# =========================
+# ALERTMANAGER
+# =========================
+alertmanager:
+  enabled: true
+
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 300m
+        memory: 512Mi
+
+# =========================
+# NODE EXPORTER (daemonset)
+# =========================
+prometheus-node-exporter:
+  enabled: true
+
+  # Runs as a DaemonSet on every node
+  hostNetwork: true
+  hostPID: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
+    - key: "node-role.kubernetes.io/master"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+# =========================
+# KUBE-STATE-METRICS
+# =========================
+kube-state-metrics:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi
+
+# =========================
+# PROMETHEUS OPERATOR
+# =========================
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+    limits:
+      cpu: 300m
+      memory: 400Mi
+
+# =========================
+# COMMON SETTINGS
+# =========================
+# If you want everything in a separate namespace (recommended)
+global:
+  rbac:
+    create: true

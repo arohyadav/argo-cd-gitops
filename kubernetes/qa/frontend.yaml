@@ -1,0 +1,74 @@
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 3000
+---
+# Frontend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-canary
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 3000
+---
+# Frontend Rollout
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 5
+  strategy:
+    canary:
+      stableService: frontend
+      canaryService: frontend-canary
+      steps:
+      - setWeight: 20
+      - pause: {}
+      - setWeight: 50
+      - pause: {duration: 30s}
+      - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: registry.gitlab.com/gitops-project1/application-code/microservice/frontend:24aae21b
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PRODUCTS_SERVICE
+          value: "products"
+        - name: SHOPPING_CART_SERVICE
+          value: "shopping"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+      imagePullSecrets:
+      - name: gitlab
